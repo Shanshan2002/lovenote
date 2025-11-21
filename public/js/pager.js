@@ -91,7 +91,7 @@ function showLoginModal() {
     async function handleLogin() {
         const username = usernameInput.value.trim();
         if (!username) {
-            alert('请输入用户名');
+            alert('Please enter username');
             return;
         }
 
@@ -114,14 +114,14 @@ function showLoginModal() {
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('连接错误，请确保服务器正在运行');
+            alert('Connection error. Please make sure the server is running');
         }
     }
 
     async function handleRegister() {
         const username = usernameInput.value.trim();
         if (!username) {
-            alert('请输入用户名');
+            alert('Please enter username');
             return;
         }
 
@@ -144,7 +144,7 @@ function showLoginModal() {
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert('连接错误，请确保服务器正在运行');
+            alert('Connection error. Please make sure the server is running');
         }
     }
 }

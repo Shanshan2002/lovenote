@@ -18,6 +18,11 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Lovenote is running!' });
 });
 
+// Root API endpoint
+app.get('/api', (req, res) => {
+    res.status(200).json({ message: 'Lovenote API is running!', version: '1.0.0' });
+});
+
 // Data storage paths
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');

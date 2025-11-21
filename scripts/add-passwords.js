@@ -2,7 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const USERS_FILE = path.join(__dirname, 'data/users.json');
+const PROJECT_ROOT = '/Users/shanshanwang/Desktop/Projects/lovenote';
+const USERS_FILE = path.join(PROJECT_ROOT, 'data/users.json');
 
 // 读取用户
 const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));

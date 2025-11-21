@@ -466,13 +466,30 @@ function createMessageCard(note) {
     const cleanup = makeDraggable(card);
 
     // Close button
-    closeBtn.onclick = (e) => {
+    closeBtn.onclick = async (e) => {
         e.stopPropagation();
-        stopAnimation(); // 清理动画
-        cleanup(); // 清理拖拽监听器
-        card.remove();
-        messageCards = messageCards.filter(c => c.id !== note.id);
-        playBeep(400, 100);
+        
+        // Delete note from server
+        try {
+            const response = await fetch(`${API_URL}/notes/${note.id}?userId=${currentUser.id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                stopAnimation(); // 清理动画
+                cleanup(); // 清理拖拽监听器
+                card.remove();
+                messageCards = messageCards.filter(c => c.id !== note.id);
+                playBeep(400, 100);
+                showNotification('Message deleted', 'success');
+            } else {
+                const data = await response.json();
+                showNotification(data.error || 'Failed to delete message', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            showNotification('Failed to delete message', 'error');
+        }
     };
 
     // Store reference
@@ -775,12 +792,40 @@ async function showMessageDetail(note) {
     showCardBtn.textContent = 'SHOW AS CARD';
     showCardBtn.onclick = () => createMessageCard(note);
     
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'pager-btn';
+    deleteBtn.style.cssText = 'background: #ff4444;';
+    deleteBtn.textContent = 'DELETE';
+    deleteBtn.onclick = async () => {
+        if (!confirm('Delete this message?')) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/notes/${note.id}?userId=${currentUser.id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('Message deleted', 'success');
+                closeMessageDetail();
+                showInboxModal(); // Refresh inbox
+                playBeep(400, 100);
+            } else {
+                const data = await response.json();
+                showNotification(data.error || 'Failed to delete message', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            showNotification('Failed to delete message', 'error');
+        }
+    };
+    
     const closeBtn = document.createElement('button');
     closeBtn.className = 'pager-btn';
     closeBtn.textContent = 'CLOSE';
     closeBtn.onclick = closeMessageDetail;
     
     actions.appendChild(showCardBtn);
+    actions.appendChild(deleteBtn);
     actions.appendChild(closeBtn);
     
     messageDetail.appendChild(header);

@@ -39,13 +39,14 @@ fi
 # 同步用户
 echo "👥 同步用户到Railway..." | tee -a "$LOG_FILE"
 
-cat data/users.json | python3 << 'EOF'
+python3 << 'EOF'
 import json
 import sys
 import requests
 
 try:
-    users = json.load(sys.stdin)
+    with open('data/users.json', 'r') as f:
+        users = json.load(f)
     railway_url = "https://lovenote-production.up.railway.app/api"
     
     success_count = 0
@@ -54,22 +55,41 @@ try:
     
     for user in users:
         try:
-            response = requests.post(f"{railway_url}/users/register", json={
-                "username": user["username"],
-                "password": user["password"]
-            }, timeout=10)
+            response = requests.post(f"{railway_url}/users/register", 
+                json={
+                    "username": user["username"],
+                    "password": user["password"]
+                }, 
+                timeout=10,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            # 调试：打印响应
+            # print(f"Debug: {user['username']} - Status: {response.status_code}, Response: {response.text[:100]}")
             
             if response.status_code == 201:
                 print(f"✅ {user['username']}")
                 success_count += 1
-            elif response.status_code == 400 and "already exists" in response.text:
-                print(f"⏭️  {user['username']} (已存在)")
-                skip_count += 1
+            elif response.status_code == 400:
+                try:
+                    error_msg = response.json().get('error', response.text)
+                    if "already exists" in error_msg or "already" in error_msg:
+                        print(f"⏭️  {user['username']} (已存在)")
+                        skip_count += 1
+                    else:
+                        print(f"⚠️  {user['username']} ({error_msg})")
+                        error_count += 1
+                except:
+                    print(f"⚠️  {user['username']} ({response.text[:50]})")
+                    error_count += 1
             else:
-                print(f"⚠️  {user['username']} ({response.status_code})")
+                print(f"⚠️  {user['username']} (HTTP {response.status_code})")
                 error_count += 1
+        except requests.exceptions.RequestException as e:
+            print(f"❌ {user['username']} (网络错误: {str(e)[:30]})")
+            error_count += 1
         except Exception as e:
-            print(f"❌ {user['username']} (错误: {str(e)[:50]})")
+            print(f"❌ {user['username']} (错误: {str(e)[:30]})")
             error_count += 1
     
     print(f"\n同步结果: 成功 {success_count}, 跳过 {skip_count}, 错误 {error_count}")
@@ -77,6 +97,9 @@ try:
     # 返回状态
     sys.exit(0 if error_count == 0 else 1)
     
+except json.JSONDecodeError as e:
+    print(f"JSON解析失败: {e}")
+    sys.exit(1)
 except Exception as e:
     print(f"同步失败: {e}")
     sys.exit(1)

@@ -172,14 +172,32 @@ function initializePager() {
     const inboxBtn = document.getElementById('inboxBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Focus input
+    // Focus input and move cursor to end
     typeInput.focus();
+    
+    // Keep cursor at the end
+    function moveCursorToEnd() {
+        const length = typeInput.value.length;
+        typeInput.setSelectionRange(length, length);
+    }
 
     // Handle typing
     typeInput.addEventListener('input', (e) => {
         typingText = e.target.value;
         typingLine.textContent = typingText;
         playBeep(800, 30);
+        // Ensure cursor stays at end
+        moveCursorToEnd();
+    });
+    
+    // Prevent cursor from moving to start on focus
+    typeInput.addEventListener('focus', () => {
+        moveCursorToEnd();
+    });
+    
+    // Keep cursor at end when clicking
+    typeInput.addEventListener('click', () => {
+        moveCursorToEnd();
     });
 
     typeInput.addEventListener('keydown', (e) => {
@@ -198,6 +216,7 @@ function initializePager() {
         typeInput.value = '';
         typingLine.textContent = '';
         typeInput.focus();
+        moveCursorToEnd();
         playBeep(500, 100);
     };
 
@@ -220,6 +239,7 @@ function initializePager() {
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
             typeInput.focus();
+            setTimeout(moveCursorToEnd, 0);
         }
     });
 }

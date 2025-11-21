@@ -208,14 +208,35 @@ body {
     min-height: 22px;
 }
 
-.typing-line {
+/* 虚拟输入系统 */
+.virtual-input-line {
+    min-height: 22px;
+    position: relative;
     border-bottom: 2px solid #00ff41;
     animation: cursorBlink 1s step-end infinite;
+}
+
+.virtual-input {
+    min-height: 22px;
+    color: #00ff41;
+    font-size: 18px;
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 5px #00ff41;
     direction: ltr;
     text-align: left;
     unicode-bidi: embed;
     white-space: pre-wrap;
     word-break: break-word;
+    outline: none;
+    border: none;
+    background: transparent;
+    caret-color: #00ff41;
+    width: 100%;
+}
+
+.virtual-input:empty:before {
+    content: attr(placeholder);
+    color: rgba(0, 255, 65, 0.3);
 }
 
 @keyframes cursorBlink {

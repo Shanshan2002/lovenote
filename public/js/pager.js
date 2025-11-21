@@ -165,45 +165,47 @@ function showMainApp() {
 // ============== PAGER SYSTEM ==============
 
 function initializePager() {
-    const typeInput = document.getElementById('typeInput');
-    const typingLine = document.getElementById('typingLine');
+    const virtualInput = document.getElementById('virtualInput');
     const clearBtn = document.getElementById('clearBtn');
     const sendBtn = document.getElementById('sendBtn');
     const inboxBtn = document.getElementById('inboxBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-
-    // Focus input
-    typeInput.focus();
     
-    // Track Chinese input composition state
+    // Hide old input if exists
+    const oldInput = document.getElementById('typeInput');
+    if (oldInput) oldInput.style.display = 'none';
+
+    // Focus virtual input
+    virtualInput.focus();
+    
+    // Track composition state for IME
     let isComposing = false;
     
     // Handle Chinese input composition
-    typeInput.addEventListener('compositionstart', () => {
+    virtualInput.addEventListener('compositionstart', () => {
         isComposing = true;
     });
     
-    typeInput.addEventListener('compositionend', (e) => {
+    virtualInput.addEventListener('compositionend', (e) => {
         isComposing = false;
     });
     
-    // Handle typing - simple sync without cursor manipulation
-    typeInput.addEventListener('input', (e) => {
-        typingText = e.target.value;
-        typingLine.textContent = typingText;
+    // Handle input changes
+    virtualInput.addEventListener('input', (e) => {
+        typingText = virtualInput.textContent || '';
         
-        // Only play beep for non-composing input
+        // Play beep for non-composing input
         if (!isComposing) {
             playBeep(800, 30);
         }
     });
 
-    typeInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+    // Handle special keys
+    virtualInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            typingText += '\n';
-            typeInput.value = typingText;
-            typingLine.textContent = typingText;
+            // Insert line break manually
+            document.execCommand('insertLineBreak');
             playBeep(600, 50);
         }
     });
@@ -211,9 +213,8 @@ function initializePager() {
     // Clear button
     clearBtn.onclick = () => {
         typingText = '';
-        typeInput.value = '';
-        typingLine.textContent = '';
-        typeInput.focus();
+        virtualInput.textContent = '';
+        virtualInput.focus();
         playBeep(500, 100);
     };
 
@@ -235,7 +236,7 @@ function initializePager() {
     // Click anywhere to refocus
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
-            typeInput.focus();
+            virtualInput.focus();
         }
     });
 }

@@ -192,11 +192,19 @@ function initializePager() {
     
     // Prevent cursor from moving to start on focus
     typeInput.addEventListener('focus', () => {
+        // Restore value from typingText variable
+        if (typingText && typeInput.value !== typingText) {
+            typeInput.value = typingText;
+        }
         moveCursorToEnd();
     });
     
     // Keep cursor at end when clicking
     typeInput.addEventListener('click', () => {
+        // Ensure value is synced
+        if (typingText && typeInput.value !== typingText) {
+            typeInput.value = typingText;
+        }
         moveCursorToEnd();
     });
 
@@ -238,6 +246,10 @@ function initializePager() {
     // Click anywhere to refocus
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
+            // Restore value before focusing
+            if (typingText && typeInput.value !== typingText) {
+                typeInput.value = typingText;
+            }
             typeInput.focus();
             setTimeout(moveCursorToEnd, 0);
         }

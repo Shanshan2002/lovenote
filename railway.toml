@@ -1,0 +1,15 @@
+# Railway配置文件
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# 持久化卷配置（需要在Railway仪表板手动添加）
+# 请在Railway仪表板配置：
+# 1. Settings → Volumes → Add Volume
+# 2. Name: data, Mount Path: /app/data
+# 3. Name: backups, Mount Path: /app/data-backups

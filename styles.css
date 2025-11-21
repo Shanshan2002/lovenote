@@ -211,6 +211,11 @@ body {
 .typing-line {
     border-bottom: 2px solid #00ff41;
     animation: cursorBlink 1s step-end infinite;
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: embed;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 @keyframes cursorBlink {
@@ -293,6 +298,8 @@ body {
     width: 0;
     height: 0;
     pointer-events: none;
+    direction: ltr;
+    text-align: left;
 }
 
 /* Modal Styles */

@@ -315,12 +315,10 @@ function animateTyping(element, text, speed = 30) {
 
 function makeDraggable(element) {
     let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
+    let startX;
+    let startY;
+    let offsetX = 0;
+    let offsetY = 0;
 
     element.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
@@ -329,11 +327,10 @@ function makeDraggable(element) {
     function dragStart(e) {
         if (e.target.closest('.card-close')) return;
         
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-
         if (e.target === element || e.target.closest('.card-header')) {
             isDragging = true;
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
             element.classList.add('dragging');
             element.style.zIndex = 1000;
         }
@@ -342,35 +339,29 @@ function makeDraggable(element) {
     function drag(e) {
         if (isDragging) {
             e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-            xOffset = currentX;
-            yOffset = currentY;
-
-            element.style.left = (parseInt(element.style.left) + currentX - xOffset + currentX) + 'px';
-            element.style.top = (parseInt(element.style.top) + currentY - yOffset + currentY) + 'px';
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
             
-            element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            element.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
         }
     }
 
     function dragEnd() {
         if (isDragging) {
-            initialX = currentX;
-            initialY = currentY;
             isDragging = false;
             element.classList.remove('dragging');
             element.style.zIndex = 10;
             
-            // Reset transform and update position
-            const rect = element.getBoundingClientRect();
-            element.style.left = rect.left + 'px';
-            element.style.top = rect.top + 'px';
+            // Update final position
+            const currentLeft = parseInt(element.style.left) || 0;
+            const currentTop = parseInt(element.style.top) || 0;
+            element.style.left = (currentLeft + offsetX) + 'px';
+            element.style.top = (currentTop + offsetY) + 'px';
             element.style.transform = 'none';
-            xOffset = 0;
-            yOffset = 0;
-            currentX = 0;
-            currentY = 0;
+            
+            // Reset offsets
+            offsetX = 0;
+            offsetY = 0;
         }
     }
 }

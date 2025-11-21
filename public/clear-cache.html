@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除缓存 - LOVENOTE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .btn-success {
+            background: #48bb78;
+        }
+        .btn-success:hover {
+            background: #38a169;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.show {
+            display: block;
+        }
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 清除缓存工具</h1>
+        <div class="message">
+            如果您看不到管理员按钮，这可能是因为浏览器缓存了旧的登录信息。
+            <br><br>
+            点击下面的按钮清除缓存，然后重新登录。
+        </div>
+        
+        <button class="btn" onclick="clearCache()">清除缓存</button>
+        <button class="btn btn-success" onclick="goToLogin()">返回登录</button>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        function clearCache() {
+            // 清除 localStorage
+            localStorage.clear();
+            
+            // 清除 sessionStorage
+            sessionStorage.clear();
+            
+            // 显示成功消息
+            const status = document.getElementById('status');
+            status.className = 'status success show';
+            status.textContent = '✅ 缓存已清除！现在可以返回登录页面重新登录。';
+            
+            console.log('Cache cleared successfully');
+        }
+        
+        function goToLogin() {
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

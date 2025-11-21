@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { createBackup, cleanOldBackups } = require('./backup');
+const { initializeAdmin } = require('./init-admin');
 
 // 常量配置
 const MAX_USERNAME_LENGTH = 50;
@@ -362,21 +363,25 @@ app.get('/api/notes/unread/:userId', (req, res) => {
 // ============== SERVER ==============
 
 // Start server (works for both local and Railway)
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`
-╔═══════════════════════════════════════╗
-║        LOVENOTE SERVER STARTED        ║
-╚═══════════════════════════════════════╝
-
-📍 Port:     ${PORT}
-🌐 Railway:  Listening on 0.0.0.0:${PORT}
-💕 Status:   Running
-💾 Backup:   Auto-backup enabled
-    `);
-    
-    // 启动时清理旧备份
+app.listen(PORT, '0.0.0.0', () => {
+    // 清理旧备份（保留最近10个）
     cleanOldBackups(10);
-});
+    
+    // 初始化管理员账户（Railway启动时自动创建）
+    initializeAdmin();
+    
+    console.log('');
+    console.log('╔═══════════════════════════════════════╗');
+    console.log('║        LOVENOTE SERVER STARTED        ║');
+    console.log('╚═══════════════════════════════════════╝');
+    console.log('');
+    console.log(`📍 Port:     ${PORT}`);
+    console.log(`🌐 Railway:  Listening on 0.0.0.0:${PORT}`);
+    console.log(`💕 Status:   Running`);
+    console.log(`💾 Backup:   Auto-backup enabled`);
+    console.log(`👑 Admin:    Auto-initialized`);
+    console.log('');
+});    
 
 // Export for Vercel compatibility (if needed)
 module.exports = app;

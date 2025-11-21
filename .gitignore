@@ -4,4 +4,18 @@ data-backups/
 .DS_Store
 *.log
 .env
+.env.local
+.env.production
 .vercel
+
+# 隐私文件
+*.pem
+*.key
+*.cert
+secrets/
+config/local.json
+
+# 临时文件
+*.tmp
+*.temp
+.cache/

@@ -466,10 +466,13 @@ async function showSendModal() {
                 playSendSound();
                 modal.style.display = 'none';
                 
-                // Clear typing area
+                // Clear typing area (虚拟输入系统)
                 typingText = '';
-                document.getElementById('typeInput').value = '';
-                document.getElementById('typingLine').textContent = '';
+                const virtualInput = document.getElementById('virtualInput');
+                if (virtualInput) {
+                    virtualInput.textContent = '';
+                    virtualInput.focus();
+                }
                 
                 alert('Message transmitted!');
             } else {

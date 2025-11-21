@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { createBackup, cleanOldBackups } = require('./backup');
 
 // 常量配置
 const MAX_USERNAME_LENGTH = 50;

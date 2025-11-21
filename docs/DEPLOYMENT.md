@@ -1,6 +1,21 @@
-# 部署 Lovenote 到 lovenote.app
+# 部署 Lovenote
 
-## 方案一：使用 Google Cloud Run（推荐）
+⚠️ **当前部署状态**: 项目已部署在 **Railway** 上
+
+## 推荐方案：Railway 🚀
+
+详细步骤请查看 [DEPLOY_RAILWAY.md](./DEPLOY_RAILWAY.md)
+
+Railway 是最适合本项目的部署平台：
+- ✅ 支持文件持久化（JSON 数据不会丢失）
+- ✅ 长期运行的 Node.js 服务器
+- ✅ 简单易用，5分钟完成部署
+
+---
+
+## 其他部署方案
+
+### 方案一：使用 Google Cloud Run
 
 ### 1. 准备 Dockerfile
 
@@ -37,25 +52,13 @@ gcloud run deploy lovenote \
 
 ---
 
-## 方案二：使用 Vercel
+### 方案二：使用 Vercel（不推荐）
 
-### 1. 安装 Vercel CLI
+⚠️ **注意**: Vercel 使用 Serverless，数据不会持久化！需要外部数据库。
 
-```bash
-npm i -g vercel
-```
+配置文件已移至 `docs/vercel.json.example` 和 `docs/vercel-api/`
 
-### 2. 部署
-
-```bash
-vercel
-```
-
-### 3. 添加域名
-
-```bash
-vercel domains add lovenote.app
-```
+详细说明请查看 [VERCEL_SETUP.md](./VERCEL_SETUP.md)
 
 ---
 

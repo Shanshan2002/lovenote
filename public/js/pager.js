@@ -18,6 +18,29 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
+// ============== NOTIFICATION SYSTEM ==============
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+    
+    // Play sound
+    if (type === 'error') {
+        playBeep(400, 100);
+    } else {
+        playBeep(1000, 100);
+    }
+}
+
 // ============== AUDIO SYSTEM ==============
 
 function initializeAudio() {
@@ -92,12 +115,12 @@ function showLoginModal() {
         const password = passwordInput.value;
         
         if (!username) {
-            alert('Please enter username');
+            showNotification('Please enter username', 'error');
             return;
         }
         
         if (!password) {
-            alert('Please enter password');
+            showNotification('Please enter password', 'error');
             return;
         }
 
@@ -116,11 +139,11 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || 'Login failed');
+                showNotification(data.error || 'Login failed', 'error');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('Connection error. Please make sure the server is running');
+            showNotification('Connection error. Please make sure the server is running', 'error');
         }
     }
 
@@ -129,12 +152,12 @@ function showLoginModal() {
         const password = passwordInput.value;
         
         if (!username) {
-            alert('Please enter username');
+            showNotification('Please enter username', 'error');
             return;
         }
         
         if (!password || password.length < 4) {
-            alert('Password must be at least 4 characters');
+            showNotification('Password must be at least 4 characters', 'error');
             return;
         }
 
@@ -153,11 +176,11 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || 'Registration failed');
+                showNotification(data.error || 'Registration failed', 'error');
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert('Connection error. Please make sure the server is running');
+            showNotification('Connection error. Please make sure the server is running', 'error');
         }
     }
 }
@@ -485,7 +508,7 @@ async function showSendModal() {
     }
     
     if (!typingText.trim()) {
-        alert('Please type a message first!');
+        showNotification('Please type a message first!', 'error');
         return;
     }
 
@@ -512,12 +535,12 @@ async function showSendModal() {
         });
 
         if (users.length <= 1) {
-            alert('No other users available. Please register another user in a different browser window.');
+            showNotification('No other users available. Please register another user in a different browser window.', 'error');
             return;
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        alert('Failed to load user list');
+        showNotification('Failed to load user list', 'error');
         return;
     }
 
@@ -530,7 +553,7 @@ async function showSendModal() {
         const toUserId = recipientSelect.value;
 
         if (!toUserId) {
-            alert('Please select a recipient');
+            showNotification('Please select a recipient', 'error');
             return;
         }
 
@@ -558,14 +581,14 @@ async function showSendModal() {
                     virtualInput.focus();
                 }
                 
-                alert('Message sent successfully!');
+                showNotification('Message sent successfully!', 'success');
             } else {
                 const data = await response.json();
-                alert(data.error || 'Failed to send message');
+                showNotification(data.error || 'Failed to send message', 'error');
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            alert('Failed to send message');
+            showNotification('Failed to send message', 'error');
         }
     };
 
@@ -725,7 +748,7 @@ function setupModalClose(modal) {
 
 async function showAdminPanel() {
     if (!currentUser.isAdmin) {
-        alert('Admin privileges required');
+        showNotification('Admin privileges required', 'error');
         return;
     }
 
@@ -790,14 +813,14 @@ async function deleteUser(userId, username) {
         const data = await response.json();
 
         if (response.ok) {
-            alert(`User "${username}" has been deleted`);
+            showNotification(`User "${username}" has been deleted`, 'success');
             playBeep(400, 100);
             showAdminPanel(); // Refresh the list
         } else {
-            alert(data.error || 'Failed to delete user');
+            showNotification(data.error || 'Failed to delete user', 'error');
         }
     } catch (error) {
         console.error('Error deleting user:', error);
-        alert('Failed to delete user');
+        showNotification('Failed to delete user', 'error');
     }
 }

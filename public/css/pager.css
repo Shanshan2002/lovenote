@@ -24,6 +24,44 @@ body {
     z-index: 1;
 }
 
+/* Custom Notification */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: #00ff41;
+    padding: 15px 30px;
+    border: 2px solid #00ff41;
+    border-radius: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    text-align: center;
+    z-index: 10000;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    min-width: 300px;
+}
+
+.notification.show {
+    opacity: 1;
+}
+
+.notification.error {
+    color: #ff4444;
+    border-color: #ff4444;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+}
+
+.notification.success {
+    color: #00ff41;
+    border-color: #00ff41;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+}
+
 /* Message Card */
 .message-card {
     position: absolute;

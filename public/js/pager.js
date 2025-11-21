@@ -177,6 +177,7 @@ function initializePager() {
     
     // Track Chinese input composition state
     let isComposing = false;
+    let compositionEndTimer = null;
     
     // Keep cursor at the end
     function moveCursorToEnd() {
@@ -194,22 +195,26 @@ function initializePager() {
     
     typeInput.addEventListener('compositionend', (e) => {
         isComposing = false;
-        typingText = e.target.value;
-        typingLine.textContent = typingText;
-        // Immediately move cursor to end after selecting character
-        setTimeout(() => {
+        // Clear any pending timer
+        if (compositionEndTimer) {
+            clearTimeout(compositionEndTimer);
+        }
+        // Wait for input event to fire, then update
+        compositionEndTimer = setTimeout(() => {
+            typingText = typeInput.value;
+            typingLine.textContent = typingText;
             moveCursorToEnd();
-        }, 0);
+            compositionEndTimer = null;
+        }, 10);
     });
     
     // Handle typing
     typeInput.addEventListener('input', (e) => {
-        // Only update if not composing (for non-Chinese input)
-        if (!isComposing) {
+        // Update immediately if not composing
+        if (!isComposing && !compositionEndTimer) {
             typingText = e.target.value;
             typingLine.textContent = typingText;
             playBeep(800, 30);
-            // Ensure cursor stays at end
             moveCursorToEnd();
         }
     });

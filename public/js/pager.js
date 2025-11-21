@@ -197,13 +197,6 @@ function initializePager() {
             playBeep(800, 30);
         }
     });
-    
-    // Restore text on focus if needed
-    typeInput.addEventListener('focus', () => {
-        if (typingText && typeInput.value !== typingText) {
-            typeInput.value = typingText;
-        }
-    });
 
     typeInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -242,9 +235,6 @@ function initializePager() {
     // Click anywhere to refocus
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
-            if (typingText && typeInput.value !== typingText) {
-                typeInput.value = typingText;
-            }
             typeInput.focus();
         }
     });

@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
@@ -24,7 +24,7 @@ app.get('/api', (req, res) => {
 });
 
 // Data storage paths
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = path.join(__dirname, '../data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const NOTES_FILE = path.join(DATA_DIR, 'notes.json');
 

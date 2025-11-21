@@ -88,10 +88,14 @@ const writeJSON = (filepath, data) => {
 
 // Register new user
 app.post('/api/users/register', (req, res) => {
-    const { username } = req.body;
+    const { username, password } = req.body;
     
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: 'Username is required' });
+    }
+    
+    if (!password || password.length < 4) {
+        return res.status(400).json({ error: 'Password must be at least 4 characters' });
     }
 
     // 消毒和验证用户名
@@ -115,6 +119,8 @@ app.post('/api/users/register', (req, res) => {
     const newUser = {
         id: uuidv4(),
         username: sanitizedUsername,
+        password: password, // In production, use bcrypt to hash passwords
+        isAdmin: false,
         createdAt: new Date().toISOString()
     };
 
@@ -123,16 +129,20 @@ app.post('/api/users/register', (req, res) => {
 
     res.status(201).json({ 
         message: 'User registered successfully',
-        user: { id: newUser.id, username: newUser.username }
+        user: { id: newUser.id, username: newUser.username, isAdmin: newUser.isAdmin }
     });
 });
 
 // Login user
 app.post('/api/users/login', (req, res) => {
-    const { username } = req.body;
+    const { username, password } = req.body;
     
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: 'Username is required' });
+    }
+    
+    if (!password) {
+        return res.status(400).json({ error: 'Password is required' });
     }
 
     // 消毒用户名
@@ -144,10 +154,15 @@ app.post('/api/users/login', (req, res) => {
     if (!user) {
         return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Verify password
+    if (user.password !== password) {
+        return res.status(401).json({ error: 'Incorrect password' });
+    }
 
     res.json({ 
         message: 'Login successful',
-        user: { id: user.id, username: user.username }
+        user: { id: user.id, username: user.username, isAdmin: user.isAdmin || false }
     });
 });
 
@@ -156,6 +171,51 @@ app.get('/api/users', (req, res) => {
     const users = readJSON(USERS_FILE);
     const userList = users.map(u => ({ id: u.id, username: u.username }));
     res.json(userList);
+});
+
+// Delete user (Admin only)
+app.delete('/api/users/:userId', (req, res) => {
+    const { userId } = req.params;
+    const { adminId } = req.query;
+    
+    if (!adminId) {
+        return res.status(401).json({ error: 'Admin authentication required' });
+    }
+    
+    const users = readJSON(USERS_FILE);
+    
+    // Check if requester is admin
+    const admin = users.find(u => u.id === adminId);
+    if (!admin || !admin.isAdmin) {
+        return res.status(403).json({ error: 'Admin privileges required' });
+    }
+    
+    // Find user to delete
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Cannot delete yourself
+    if (userId === adminId) {
+        return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+    
+    const deletedUser = users[userIndex];
+    users.splice(userIndex, 1);
+    writeJSON(USERS_FILE, users);
+    
+    // Delete all notes from/to this user
+    const notes = readJSON(NOTES_FILE);
+    const filteredNotes = notes.filter(n => 
+        n.fromUserId !== userId && n.toUserId !== userId
+    );
+    writeJSON(NOTES_FILE, filteredNotes);
+    
+    res.json({ 
+        message: 'User deleted successfully',
+        deletedUser: { id: deletedUser.id, username: deletedUser.username }
+    });
 });
 
 // ============== NOTE ROUTES ==============

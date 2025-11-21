@@ -66,6 +66,7 @@ function showLoginModal() {
     const loginModal = document.getElementById('loginModal');
     const mainApp = document.getElementById('mainApp');
     const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
@@ -81,14 +82,22 @@ function showLoginModal() {
     };
 
     usernameInput.addEventListener('keypress', handleKeypress);
+    passwordInput.addEventListener('keypress', handleKeypress);
 
     loginBtn.onclick = handleLogin;
     registerBtn.onclick = handleRegister;
 
     async function handleLogin() {
         const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        
         if (!username) {
             alert('Please enter username');
+            return;
+        }
+        
+        if (!password) {
+            alert('Please enter password');
             return;
         }
 
@@ -96,7 +105,7 @@ function showLoginModal() {
             const response = await fetch(`${API_URL}/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
+                body: JSON.stringify({ username, password })
             });
 
             const data = await response.json();
@@ -117,8 +126,15 @@ function showLoginModal() {
 
     async function handleRegister() {
         const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        
         if (!username) {
             alert('Please enter username');
+            return;
+        }
+        
+        if (!password || password.length < 4) {
+            alert('Password must be at least 4 characters');
             return;
         }
 
@@ -126,7 +142,7 @@ function showLoginModal() {
             const response = await fetch(`${API_URL}/users/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
+                body: JSON.stringify({ username, password })
             });
 
             const data = await response.json();
@@ -150,10 +166,16 @@ function showMainApp() {
     const loginModal = document.getElementById('loginModal');
     const mainApp = document.getElementById('mainApp');
     const currentUsername = document.getElementById('currentUsername');
+    const adminBtn = document.getElementById('adminBtn');
 
     loginModal.style.display = 'none';
     mainApp.style.display = 'block';
     currentUsername.textContent = currentUser.username;
+    
+    // Show admin button if user is admin
+    if (currentUser.isAdmin) {
+        adminBtn.style.display = 'inline-block';
+    }
 
     initializePager();
     loadMessages();
@@ -178,6 +200,7 @@ function initializePager() {
     const sendBtn = document.getElementById('sendBtn');
     const inboxBtn = document.getElementById('inboxBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const adminBtn = document.getElementById('adminBtn');
     
     // Hide old input if exists
     const oldInput = document.getElementById('typeInput');
@@ -237,6 +260,11 @@ function initializePager() {
 
     // Inbox button
     inboxBtn.onclick = showInboxModal;
+    
+    // Admin button
+    if (adminBtn) {
+        adminBtn.onclick = showAdminPanel;
+    }
 
     // Logout button
     logoutBtn.onclick = () => {
@@ -691,4 +719,85 @@ function setupModalClose(modal) {
             playBeep(500, 50);
         }
     };
+}
+
+// ============== ADMIN PANEL ==============
+
+async function showAdminPanel() {
+    if (!currentUser.isAdmin) {
+        alert('Admin privileges required');
+        return;
+    }
+
+    const modal = document.getElementById('adminModal');
+    const userList = document.getElementById('userList');
+
+    modal.style.display = 'flex';
+    userList.innerHTML = '<div class="empty-state">LOADING...</div>';
+
+    try {
+        const response = await fetch(`${API_URL}/users`);
+        const users = await response.json();
+
+        userList.innerHTML = '';
+        
+        const header = document.createElement('div');
+        header.style.cssText = 'margin-bottom: 20px; color: #00ff41; font-size: 14px;';
+        header.textContent = `Total Users: ${users.length}`;
+        userList.appendChild(header);
+
+        users.forEach(user => {
+            const userItem = document.createElement('div');
+            userItem.style.cssText = 'margin: 10px 0; padding: 10px; background: rgba(0,255,65,0.1); border: 1px solid #00ff41; display: flex; justify-content: space-between; align-items: center;';
+            
+            const userInfo = document.createElement('div');
+            userInfo.style.cssText = 'color: #00ff41;';
+            userInfo.textContent = `${user.username}${user.id === currentUser.id ? ' (YOU)' : ''}`;
+            
+            if (user.id !== currentUser.id) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'pager-btn';
+                deleteBtn.style.cssText = 'background: #ff4444; padding: 5px 15px; font-size: 12px;';
+                deleteBtn.textContent = 'DELETE';
+                deleteBtn.onclick = () => deleteUser(user.id, user.username);
+                
+                userItem.appendChild(userInfo);
+                userItem.appendChild(deleteBtn);
+            } else {
+                userItem.appendChild(userInfo);
+            }
+            
+            userList.appendChild(userItem);
+        });
+    } catch (error) {
+        console.error('Error loading users:', error);
+        userList.innerHTML = '<div class="empty-state">ERROR LOADING</div>';
+    }
+
+    setupModalClose(modal);
+}
+
+async function deleteUser(userId, username) {
+    if (!confirm(`Delete user "${username}"? This will also delete all their messages.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/users/${userId}?adminId=${currentUser.id}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(`User "${username}" has been deleted`);
+            playBeep(400, 100);
+            showAdminPanel(); // Refresh the list
+        } else {
+            alert(data.error || 'Failed to delete user');
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+    }
 }

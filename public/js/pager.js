@@ -172,22 +172,12 @@ function initializePager() {
     const inboxBtn = document.getElementById('inboxBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Focus input and move cursor to end
+    // Focus input
     typeInput.focus();
     
     // Track Chinese input composition state
     let isComposing = false;
-    let compositionEndTimer = null;
     
-    // Keep cursor at the end
-    function moveCursorToEnd() {
-        // Don't move cursor during Chinese input composition
-        if (isComposing) return;
-        
-        const length = typeInput.value.length;
-        typeInput.setSelectionRange(length, length);
-    }
-
     // Handle Chinese input composition
     typeInput.addEventListener('compositionstart', () => {
         isComposing = true;
@@ -195,46 +185,24 @@ function initializePager() {
     
     typeInput.addEventListener('compositionend', (e) => {
         isComposing = false;
-        // Clear any pending timer
-        if (compositionEndTimer) {
-            clearTimeout(compositionEndTimer);
-        }
-        // Wait for input event to fire, then update
-        compositionEndTimer = setTimeout(() => {
-            typingText = typeInput.value;
-            typingLine.textContent = typingText;
-            moveCursorToEnd();
-            compositionEndTimer = null;
-        }, 10);
     });
     
-    // Handle typing
+    // Handle typing - simple sync without cursor manipulation
     typeInput.addEventListener('input', (e) => {
-        // Update immediately if not composing
-        if (!isComposing && !compositionEndTimer) {
-            typingText = e.target.value;
-            typingLine.textContent = typingText;
+        typingText = e.target.value;
+        typingLine.textContent = typingText;
+        
+        // Only play beep for non-composing input
+        if (!isComposing) {
             playBeep(800, 30);
-            moveCursorToEnd();
         }
     });
     
-    // Prevent cursor from moving to start on focus
+    // Restore text on focus if needed
     typeInput.addEventListener('focus', () => {
-        // Restore value from typingText variable
         if (typingText && typeInput.value !== typingText) {
             typeInput.value = typingText;
         }
-        moveCursorToEnd();
-    });
-    
-    // Keep cursor at end when clicking
-    typeInput.addEventListener('click', () => {
-        // Ensure value is synced
-        if (typingText && typeInput.value !== typingText) {
-            typeInput.value = typingText;
-        }
-        moveCursorToEnd();
     });
 
     typeInput.addEventListener('keydown', (e) => {
@@ -253,7 +221,6 @@ function initializePager() {
         typeInput.value = '';
         typingLine.textContent = '';
         typeInput.focus();
-        moveCursorToEnd();
         playBeep(500, 100);
     };
 
@@ -275,12 +242,10 @@ function initializePager() {
     // Click anywhere to refocus
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
-            // Restore value before focusing
             if (typingText && typeInput.value !== typingText) {
                 typeInput.value = typingText;
             }
             typeInput.focus();
-            setTimeout(moveCursorToEnd, 0);
         }
     });
 }

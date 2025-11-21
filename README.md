@@ -63,9 +63,7 @@ lovenote/
 ## 部署
 
 查看 [部署指南](docs/DEPLOYMENT.md) 了解如何部署到：
-- Railway（推荐）
-- Vercel
-- Google Cloud Run
+- Railway
 
 ## 许可
 

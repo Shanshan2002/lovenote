@@ -403,6 +403,12 @@ function flashLED() {
 // ============== SEND MESSAGE ==============
 
 async function showSendModal() {
+    // 确保从虚拟输入获取最新内容
+    const virtualInput = document.getElementById('virtualInput');
+    if (virtualInput) {
+        typingText = virtualInput.textContent || '';
+    }
+    
     if (!typingText.trim()) {
         alert('Please type a message first!');
         return;

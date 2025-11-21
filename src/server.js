@@ -18,12 +18,12 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// 输入消毒函数
+// Input sanitization functions
 const sanitizeInput = (input) => {
     if (typeof input !== 'string') return '';
     return input
         .trim()
-        .replace(/[<>]/g, '') // 基本XSS防护
+        .replace(/[<>]/g, '') // Basic XSS protection
         .substring(0, MAX_MESSAGE_LENGTH);
 };
 

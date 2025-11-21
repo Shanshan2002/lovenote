@@ -110,7 +110,7 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || '登录失败');
+                alert(data.error || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -140,7 +140,7 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || '注册失败');
+                alert(data.error || 'Registration failed');
             }
         } catch (error) {
             console.error('Registration error:', error);
@@ -243,7 +243,7 @@ function initializePager() {
 
     // Logout button
     logoutBtn.onclick = () => {
-        if (confirm('确定要退出登录吗？')) {
+        if (confirm('Are you sure you want to logout?')) {
             localStorage.removeItem('currentUser');
             currentUser = null;
             location.reload();
@@ -431,7 +431,7 @@ async function showSendModal() {
     }
     
     if (!typingText.trim()) {
-        alert('请先输入消息！');
+        alert('Please type a message first!');
         return;
     }
 
@@ -458,12 +458,12 @@ async function showSendModal() {
         });
 
         if (users.length <= 1) {
-            alert('暂无其他用户。请在另一个浏览器窗口注册另一个用户。');
+            alert('No other users available. Please register another user in a different browser window.');
             return;
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        alert('加载用户列表失败');
+        alert('Failed to load user list');
         return;
     }
 
@@ -476,7 +476,7 @@ async function showSendModal() {
         const toUserId = recipientSelect.value;
 
         if (!toUserId) {
-            alert('请选择收件人');
+            alert('Please select a recipient');
             return;
         }
 
@@ -504,14 +504,14 @@ async function showSendModal() {
                     virtualInput.focus();
                 }
                 
-                alert('消息已发送！');
+                alert('Message sent successfully!');
             } else {
                 const data = await response.json();
-                alert(data.error || '发送消息失败');
+                alert(data.error || 'Failed to send message');
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            alert('发送消息失败');
+            alert('Failed to send message');
         }
     };
 

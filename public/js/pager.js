@@ -84,7 +84,7 @@ function showLoginModal() {
     async function handleLogin() {
         const username = usernameInput.value.trim();
         if (!username) {
-            alert('Please enter a username');
+            alert('请输入用户名');
             return;
         }
 
@@ -103,18 +103,18 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || 'Login failed');
+                alert(data.error || '登录失败');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('Connection error. Please make sure the server is running.');
+            alert('连接错误，请确保服务器正在运行');
         }
     }
 
     async function handleRegister() {
         const username = usernameInput.value.trim();
         if (!username) {
-            alert('Please enter a username');
+            alert('请输入用户名');
             return;
         }
 
@@ -133,11 +133,11 @@ function showLoginModal() {
                 playSendSound();
                 showMainApp();
             } else {
-                alert(data.error || 'Registration failed');
+                alert(data.error || '注册失败');
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert('Connection error. Please make sure the server is running.');
+            alert('连接错误，请确保服务器正在运行');
         }
     }
 }
@@ -226,7 +226,7 @@ function initializePager() {
 
     // Logout button
     logoutBtn.onclick = () => {
-        if (confirm('Are you sure you want to logout?')) {
+        if (confirm('确定要退出登录吗？')) {
             localStorage.removeItem('currentUser');
             currentUser = null;
             location.reload();
@@ -410,7 +410,7 @@ async function showSendModal() {
     }
     
     if (!typingText.trim()) {
-        alert('Please type a message first!');
+        alert('请先输入消息！');
         return;
     }
 
@@ -437,12 +437,12 @@ async function showSendModal() {
         });
 
         if (users.length <= 1) {
-            alert('No other users available. Please register another user in a different browser window.');
+            alert('暂无其他用户。请在另一个浏览器窗口注册另一个用户。');
             return;
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        alert('Failed to load users');
+        alert('加载用户列表失败');
         return;
     }
 
@@ -452,7 +452,7 @@ async function showSendModal() {
         const toUserId = recipientSelect.value;
 
         if (!toUserId) {
-            alert('Please select a recipient');
+            alert('请选择收件人');
             return;
         }
 
@@ -480,14 +480,14 @@ async function showSendModal() {
                     virtualInput.focus();
                 }
                 
-                alert('Message transmitted!');
+                alert('消息已发送！');
             } else {
                 const data = await response.json();
-                alert(data.error || 'Failed to send message');
+                alert(data.error || '发送消息失败');
             }
         } catch (error) {
             console.error('Error sending message:', error);
-            alert('Failed to send message');
+            alert('发送消息失败');
         }
     };
 

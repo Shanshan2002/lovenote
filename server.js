@@ -13,6 +13,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'Lovenote is running!' });
+});
+
 // Data storage paths
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');

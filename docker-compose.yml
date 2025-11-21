@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  lovenote:
+    build: .
+    container_name: lovenote
+    ports:
+      - "8080:8080"
+    volumes:
+      # 数据持久化 - 关键！
+      - ./data:/app/data
+      - ./data-backups:/app/data-backups
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - ADMIN_PASSWORD=200269
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# 可选：添加PostgreSQL数据库
+#  postgres:
+#    image: postgres:15-alpine
+#    container_name: lovenote-db
+#    environment:
+#      POSTGRES_USER: lovenote
+#      POSTGRES_PASSWORD: your_password
+#      POSTGRES_DB: lovenote
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    restart: unless-stopped
+
+#volumes:
+#  postgres_data:

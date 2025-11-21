@@ -71,6 +71,10 @@
                         </button>
                     </div>
                     <div class="button-row">
+                        <button class="control-btn" id="kaomojiBtn" title="Kaomoji Library">
+                            <span class="btn-icon">( ͡° ͜ʖ ͡°)</span>
+                            <span class="btn-label">EMOJI</span>
+                        </button>
                         <button class="control-btn danger-btn" id="logoutBtn" title="Logout">
                             <span class="btn-icon">🚪</span>
                             <span class="btn-label">LOGOUT</span>
@@ -134,6 +138,17 @@
                     <div class="admin-panel">
                         <div id="userList"></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kaomoji Library Modal -->
+        <div id="kaomojiModal" class="modal" style="display: none;">
+            <div class="modal-content pager-style kaomoji-modal">
+                <span class="close">&times;</span>
+                <div class="pager-screen">
+                    <div class="screen-header">KAOMOJI LIBRARY ٩(◕‿◕｡)۶</div>
+                    <div class="kaomoji-library" id="kaomojiLibrary"></div>
                 </div>
             </div>
         </div>

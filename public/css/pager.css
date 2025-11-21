@@ -79,6 +79,54 @@ body {
     z-index: -1;
 }
 
+/* Kaomoji Library */
+.kaomoji-modal .modal-content {
+    max-width: 700px;
+    max-height: 80vh;
+}
+
+.kaomoji-library {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.kaomoji-category {
+    grid-column: 1 / -1;
+    color: #00ff41;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #00ff41;
+    padding-bottom: 5px;
+}
+
+.kaomoji-item {
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid #00ff41;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 20px;
+    user-select: none;
+}
+
+.kaomoji-item:hover {
+    background: rgba(0, 255, 65, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+}
+
+.kaomoji-item:active {
+    transform: scale(0.95);
+}
+
 /* Message Card */
 .message-card {
     position: absolute;

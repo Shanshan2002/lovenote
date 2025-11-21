@@ -196,6 +196,10 @@ function initializePager() {
         isComposing = false;
         typingText = e.target.value;
         typingLine.textContent = typingText;
+        // Immediately move cursor to end after selecting character
+        setTimeout(() => {
+            moveCursorToEnd();
+        }, 0);
     });
     
     // Handle typing

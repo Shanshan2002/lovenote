@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lovenote - Share Your Heart</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content pager-style">
+            <div class="pager-screen">
+                <div class="screen-header">LOVENOTE</div>
+                <div class="login-form">
+                    <div class="screen-text">ENTER ID:</div>
+                    <input type="text" id="usernameInput" placeholder="YOUR NAME" maxlength="20">
+                    <div class="login-buttons">
+                        <button id="loginBtn" class="pager-btn">LOGIN</button>
+                        <button id="registerBtn" class="pager-btn">REGISTER</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <!-- Canvas Area for Message Cards -->
+        <div id="canvas" class="canvas-area"></div>
+
+        <!-- Pager Device -->
+        <div class="pager-device">
+            <div class="pager-body">
+                <!-- LED Indicator -->
+                <div class="led-indicator">
+                    <div class="led" id="messageLed"></div>
+                    <span class="led-label">NEW MSG</span>
+                </div>
+
+                <!-- LCD Screen -->
+                <div class="lcd-screen">
+                    <div class="screen-content">
+                        <div class="screen-line" id="screenLine1">LOVENOTE v1.0</div>
+                        <div class="screen-line" id="screenLine2">USER: <span id="currentUsername"></span></div>
+                        <div class="screen-line typing-line" id="typingLine"></div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="pager-controls">
+                    <div class="button-row">
+                        <button class="control-btn" id="inboxBtn" title="View Messages">
+                            <span class="btn-icon">📬</span>
+                            <span class="btn-label">INBOX</span>
+                            <span class="badge" id="unreadCount">0</span>
+                        </button>
+                        <button class="control-btn" id="sendBtn" title="Send Message">
+                            <span class="btn-icon">📤</span>
+                            <span class="btn-label">SEND</span>
+                        </button>
+                        <button class="control-btn" id="clearBtn" title="Clear">
+                            <span class="btn-icon">🗑️</span>
+                            <span class="btn-label">CLEAR</span>
+                        </button>
+                    </div>
+                    <div class="button-row">
+                        <button class="control-btn" id="logoutBtn" title="Logout">
+                            <span class="btn-icon">🚪</span>
+                            <span class="btn-label">EXIT</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden Input -->
+                <input type="text" id="typeInput" class="hidden-input" autofocus>
+            </div>
+        </div>
+
+        <!-- Send Modal -->
+        <div id="sendModal" class="modal" style="display: none;">
+            <div class="modal-content pager-style">
+                <span class="close">&times;</span>
+                <div class="pager-screen">
+                    <div class="screen-header">SEND MESSAGE</div>
+                    <div class="send-form">
+                        <select id="recipientSelect" class="pager-select">
+                            <option value="">SELECT RECIPIENT...</option>
+                        </select>
+                        <div class="message-preview" id="messagePreview"></div>
+                        <button id="confirmSendBtn" class="pager-btn">TRANSMIT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inbox Modal -->
+        <div id="inboxModal" class="modal" style="display: none;">
+            <div class="modal-content pager-style large">
+                <span class="close">&times;</span>
+                <div class="pager-screen">
+                    <div class="screen-header">INBOX</div>
+                    <div id="inboxList" class="messages-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Detail Modal -->
+        <div id="messageDetailModal" class="modal" style="display: none;">
+            <div class="modal-content pager-style">
+                <span class="close">&times;</span>
+                <div class="pager-screen">
+                    <div id="messageDetail"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="beepSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+    <audio id="sendSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>

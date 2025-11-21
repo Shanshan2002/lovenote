@@ -126,6 +126,9 @@ app.post('/api/users/register', (req, res) => {
 
     users.push(newUser);
     writeJSON(USERS_FILE, users);
+    
+    // 实时备份
+    createBackup('user_register');
 
     res.status(201).json({ 
         message: 'User registered successfully',
@@ -212,6 +215,9 @@ app.delete('/api/users/:userId', (req, res) => {
     );
     writeJSON(NOTES_FILE, filteredNotes);
     
+    // 实时备份
+    createBackup('user_deleted');
+    
     res.json({ 
         message: 'User deleted successfully',
         deletedUser: { id: deletedUser.id, username: deletedUser.username }
@@ -264,6 +270,9 @@ app.post('/api/notes/send', (req, res) => {
 
     notes.push(newNote);
     writeJSON(NOTES_FILE, notes);
+    
+    // 实时备份
+    createBackup('message_sent');
 
     res.status(201).json({ 
         message: 'Note sent successfully',
@@ -361,7 +370,11 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 📍 Port:     ${PORT}
 🌐 Railway:  Listening on 0.0.0.0:${PORT}
 💕 Status:   Running
+💾 Backup:   Auto-backup enabled
     `);
+    
+    // 启动时清理旧备份
+    cleanOldBackups(10);
 });
 
 // Export for Vercel compatibility (if needed)

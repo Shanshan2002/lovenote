@@ -447,6 +447,9 @@ async function showSendModal() {
     }
 
     modal.style.display = 'flex';
+    
+    // 保存消息内容副本，防止被意外清空
+    const messageContent = typingText;
 
     confirmSendBtn.onclick = async () => {
         const toUserId = recipientSelect.value;
@@ -464,7 +467,7 @@ async function showSendModal() {
                     fromUserId: currentUser.id,
                     toUserId,
                     title: 'Message',
-                    content: typingText
+                    content: messageContent
                 })
             });
 

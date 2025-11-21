@@ -6,6 +6,8 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { createBackup, cleanOldBackups } = require('./backup');
 const { initializeAdmin } = require('./init-admin');
+const initializeCoreUsers = require('./init-users');
+const restoreMessagesIfNeeded = require('./restore-messages');
 
 // 常量配置
 const MAX_USERNAME_LENGTH = 50;
@@ -363,12 +365,16 @@ app.get('/api/notes/unread/:userId', (req, res) => {
 // ============== SERVER ==============
 
 // Start server (works for both local and Railway)
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, async () => {
     // 清理旧备份（保留最近10个）
     cleanOldBackups(10);
     
     // 初始化管理员账户（Railway启动时自动创建）
     initializeAdmin();
+    
+    // 自动恢复模块
+    await initializeCoreUsers();
+    await restoreMessagesIfNeeded();
     
     console.log('');
     console.log('╔═══════════════════════════════════════╗');

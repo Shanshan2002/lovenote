@@ -24,6 +24,14 @@ body {
     z-index: 1;
 }
 
+/* Version Tag */
+.version-tag {
+    float: right;
+    font-size: 12px;
+    color: rgba(0, 255, 65, 0.6);
+    font-family: 'Orbitron', monospace;
+}
+
 /* Custom Notification */
 .notification {
     position: fixed;

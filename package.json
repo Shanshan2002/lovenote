@@ -1,6 +1,6 @@
 {
   "name": "lovenote",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Lovenote - Share Your Heart Messages",
   "main": "src/server.js",
   "scripts": {

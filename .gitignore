@@ -19,3 +19,12 @@ config/local.json
 *.tmp
 *.temp
 .cache/
+
+# 旧脚本文件（已移动到 scripts/）
+/backup-data.sh
+/check-privacy.sh
+/add-passwords.js
+
+# 旧文档文件（已移动到 docs/）
+/PRIVACY.md
+/DEPLOYMENT_STATUS.md

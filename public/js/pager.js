@@ -175,19 +175,39 @@ function initializePager() {
     // Focus input and move cursor to end
     typeInput.focus();
     
+    // Track Chinese input composition state
+    let isComposing = false;
+    
     // Keep cursor at the end
     function moveCursorToEnd() {
+        // Don't move cursor during Chinese input composition
+        if (isComposing) return;
+        
         const length = typeInput.value.length;
         typeInput.setSelectionRange(length, length);
     }
 
-    // Handle typing
-    typeInput.addEventListener('input', (e) => {
+    // Handle Chinese input composition
+    typeInput.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+    
+    typeInput.addEventListener('compositionend', (e) => {
+        isComposing = false;
         typingText = e.target.value;
         typingLine.textContent = typingText;
-        playBeep(800, 30);
-        // Ensure cursor stays at end
-        moveCursorToEnd();
+    });
+    
+    // Handle typing
+    typeInput.addEventListener('input', (e) => {
+        // Only update if not composing (for non-Chinese input)
+        if (!isComposing) {
+            typingText = e.target.value;
+            typingLine.textContent = typingText;
+            playBeep(800, 30);
+            // Ensure cursor stays at end
+            moveCursorToEnd();
+        }
     });
     
     // Prevent cursor from moving to start on focus

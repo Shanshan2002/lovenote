@@ -233,21 +233,18 @@ app.get('/api/notes/unread/:userId', (req, res) => {
 
 // ============== SERVER ==============
 
-// For Vercel serverless, export the app instead of listening
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`
+// Start server (works for both local and Railway)
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
 ╔═══════════════════════════════════════╗
 ║        LOVENOTE SERVER STARTED        ║
 ╚═══════════════════════════════════════╝
 
-📍 Local:    http://localhost:${PORT}
-🌐 Domain:   lovenote.app (when deployed)
-🔌 API:      http://localhost:${PORT}/api
+📍 Port:     ${PORT}
+🌐 Railway:  Listening on 0.0.0.0:${PORT}
 💕 Status:   Running
     `);
-    });
-}
+});
 
-// Export for Vercel
+// Export for Vercel compatibility (if needed)
 module.exports = app;

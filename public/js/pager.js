@@ -7,7 +7,6 @@ let currentUser = null;
 let typingText = '';
 let messageCards = [];
 let refreshInterval = null;
-let eventListeners = [];
 
 // Audio Context for custom beep sounds
 let audioContext;
@@ -73,7 +72,7 @@ function showLoginModal() {
     loginModal.style.display = 'flex';
     mainApp.style.display = 'none';
 
-    // 防止重复绑定
+    // 登录回车键处理
     const handleKeypress = (e) => {
         if (e.key === 'Enter') {
             handleLogin();
@@ -81,8 +80,6 @@ function showLoginModal() {
         playBeep(700, 30);
     };
 
-    // 移除旧的监听器
-    usernameInput.removeEventListener('keypress', handleKeypress);
     usernameInput.addEventListener('keypress', handleKeypress);
 
     loginBtn.onclick = handleLogin;
@@ -295,38 +292,57 @@ function createMessageCard(note) {
     card.style.left = x + 'px';
     card.style.top = y + 'px';
 
-    // Card structure
-    card.innerHTML = `
-        <button class="card-close">&times;</button>
-        <div class="card-header">
-            <div class="card-from">FROM: ${note.fromUsername}</div>
-            <div class="card-time">${new Date(note.createdAt).toLocaleTimeString()}</div>
-        </div>
-        <div class="card-content"></div>
-    `;
-
+    // Card structure (使用textContent防止XSS)
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'card-close';
+    closeBtn.textContent = '×';
+    
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    
+    const fromDiv = document.createElement('div');
+    fromDiv.className = 'card-from';
+    fromDiv.textContent = `FROM: ${note.fromUsername}`;
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'card-time';
+    timeDiv.textContent = new Date(note.createdAt).toLocaleTimeString();
+    
+    header.appendChild(fromDiv);
+    header.appendChild(timeDiv);
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'card-content';
+    
+    card.appendChild(closeBtn);
+    card.appendChild(header);
+    card.appendChild(contentDiv);
     canvas.appendChild(card);
 
-    // Animate typing effect
-    const contentDiv = card.querySelector('.card-content');
-    animateTyping(contentDiv, note.content);
+    // Animate typing effect with cleanup
+    const stopAnimation = animateTyping(contentDiv, note.content);
 
     // Mark as read
     markAsRead(note.id);
 
-    // Make draggable
-    makeDraggable(card);
+    // Make draggable with cleanup
+    const cleanup = makeDraggable(card);
 
     // Close button
-    card.querySelector('.card-close').onclick = (e) => {
+    closeBtn.onclick = (e) => {
         e.stopPropagation();
+        stopAnimation(); // 清理动画
+        cleanup(); // 清理拖拽监听器
         card.remove();
         messageCards = messageCards.filter(c => c.id !== note.id);
         playBeep(400, 100);
     };
 
     // Store reference
-    messageCards.push({ id: note.id, element: card });
+    messageCards.push({ id: note.id, element: card, cleanup: () => {
+        stopAnimation();
+        cleanup();
+    }});
 
     // Play notification sound
     setTimeout(() => playBeep(1200, 100), 100);
@@ -349,6 +365,9 @@ function animateTyping(element, text, speed = 30) {
             clearInterval(interval);
         }
     }, speed);
+    
+    // 返回清理函数
+    return () => clearInterval(interval);
 }
 
 function makeDraggable(element) {
@@ -357,10 +376,6 @@ function makeDraggable(element) {
     let startY;
     let offsetX = 0;
     let offsetY = 0;
-
-    element.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
 
     function dragStart(e) {
         if (e.target.closest('.card-close')) return;
@@ -402,6 +417,17 @@ function makeDraggable(element) {
             offsetY = 0;
         }
     }
+
+    element.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+    
+    // 返回清理函数
+    return () => {
+        element.removeEventListener('mousedown', dragStart);
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', dragEnd);
+    };
 }
 
 async function markAsRead(noteId) {
@@ -583,17 +609,46 @@ async function showMessageDetail(note) {
 
     const time = new Date(note.createdAt).toLocaleString();
 
-    messageDetail.innerHTML = `
-        <div class="message-detail-header">
-            <div class="message-detail-from">FROM: ${note.fromUsername}</div>
-            <div class="message-detail-time">${time}</div>
-        </div>
-        <div class="message-detail-content">${note.content}</div>
-        <div class="message-actions">
-            <button class="pager-btn" onclick="createMessageCard(${JSON.stringify(note).replace(/"/g, '&quot;')})">SHOW AS CARD</button>
-            <button class="pager-btn" onclick="closeMessageDetail()">CLOSE</button>
-        </div>
-    `;
+    // 使用 DOM API 创建元素，避免 XSS
+    messageDetail.innerHTML = '';
+    
+    const header = document.createElement('div');
+    header.className = 'message-detail-header';
+    
+    const fromDiv = document.createElement('div');
+    fromDiv.className = 'message-detail-from';
+    fromDiv.textContent = `FROM: ${note.fromUsername}`;
+    
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'message-detail-time';
+    timeDiv.textContent = time;
+    
+    header.appendChild(fromDiv);
+    header.appendChild(timeDiv);
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-detail-content';
+    contentDiv.textContent = note.content;
+    
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+    
+    const showCardBtn = document.createElement('button');
+    showCardBtn.className = 'pager-btn';
+    showCardBtn.textContent = 'SHOW AS CARD';
+    showCardBtn.onclick = () => createMessageCard(note);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'pager-btn';
+    closeBtn.textContent = 'CLOSE';
+    closeBtn.onclick = closeMessageDetail;
+    
+    actions.appendChild(showCardBtn);
+    actions.appendChild(closeBtn);
+    
+    messageDetail.appendChild(header);
+    messageDetail.appendChild(contentDiv);
+    messageDetail.appendChild(actions);
 
     modal.style.display = 'flex';
     setupModalClose(modal);

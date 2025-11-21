@@ -1,11 +1,13 @@
 // Auto-detect API URL based on current domain
 const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api' 
+    ? 'http://localhost:8080/api' 
     : `${window.location.protocol}//${window.location.host}/api`;
 
 let currentUser = null;
 let typingText = '';
 let messageCards = [];
+let refreshInterval = null;
+let eventListeners = [];
 
 // Audio Context for custom beep sounds
 let audioContext;
@@ -71,12 +73,17 @@ function showLoginModal() {
     loginModal.style.display = 'flex';
     mainApp.style.display = 'none';
 
-    usernameInput.addEventListener('keypress', (e) => {
+    // 防止重复绑定
+    const handleKeypress = (e) => {
         if (e.key === 'Enter') {
             handleLogin();
         }
         playBeep(700, 30);
-    });
+    };
+
+    // 移除旧的监听器
+    usernameInput.removeEventListener('keypress', handleKeypress);
+    usernameInput.addEventListener('keypress', handleKeypress);
 
     loginBtn.onclick = handleLogin;
     registerBtn.onclick = handleRegister;
@@ -156,7 +163,11 @@ function showMainApp() {
     loadUnreadCount();
     
     // Refresh unread count and messages every 10 seconds
-    setInterval(() => {
+    // 清理旧的interval
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    refreshInterval = setInterval(() => {
         loadUnreadCount();
         loadMessages();
     }, 10000);
@@ -204,8 +215,14 @@ function initializePager() {
     virtualInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            // Insert line break manually
-            document.execCommand('insertLineBreak');
+            // 使用现代API插入换行
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode('\n'));
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
             playBeep(600, 50);
         }
     });
@@ -233,12 +250,16 @@ function initializePager() {
         }
     };
 
-    // Click anywhere to refocus
-    document.addEventListener('click', (e) => {
+    // Click anywhere to refocus (防止重复绑定)
+    const handleGlobalClick = (e) => {
         if (!e.target.closest('.modal-content') && !e.target.closest('.message-card')) {
             virtualInput.focus();
         }
-    });
+    };
+    
+    // 移除旧的监听器
+    document.removeEventListener('click', handleGlobalClick);
+    document.addEventListener('click', handleGlobalClick);
 }
 
 // ============== MESSAGE CARDS ==============

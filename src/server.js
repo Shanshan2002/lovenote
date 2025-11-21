@@ -5,13 +5,35 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
+// 常量配置
+const MAX_USERNAME_LENGTH = 50;
+const MAX_MESSAGE_LENGTH = 5000;
+const MAX_TITLE_LENGTH = 100;
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
+
+// 输入消毒函数
+const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return '';
+    return input
+        .trim()
+        .replace(/[<>]/g, '') // 基本XSS防护
+        .substring(0, MAX_MESSAGE_LENGTH);
+};
+
+const sanitizeUsername = (input) => {
+    if (typeof input !== 'string') return '';
+    return input
+        .trim()
+        .replace(/[<>"'&]/g, '')
+        .substring(0, MAX_USERNAME_LENGTH);
+};
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
@@ -72,16 +94,27 @@ app.post('/api/users/register', (req, res) => {
         return res.status(400).json({ error: 'Username is required' });
     }
 
+    // 消毒和验证用户名
+    const sanitizedUsername = sanitizeUsername(username);
+    
+    if (sanitizedUsername.length < 2) {
+        return res.status(400).json({ error: 'Username must be at least 2 characters' });
+    }
+    
+    if (sanitizedUsername.length > MAX_USERNAME_LENGTH) {
+        return res.status(400).json({ error: `Username too long (max ${MAX_USERNAME_LENGTH} characters)` });
+    }
+
     const users = readJSON(USERS_FILE);
     
     // Check if username already exists
-    if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+    if (users.find(u => u.username.toLowerCase() === sanitizedUsername.toLowerCase())) {
         return res.status(400).json({ error: 'Username already exists' });
     }
 
     const newUser = {
         id: uuidv4(),
-        username: username.trim(),
+        username: sanitizedUsername,
         createdAt: new Date().toISOString()
     };
 
@@ -102,8 +135,11 @@ app.post('/api/users/login', (req, res) => {
         return res.status(400).json({ error: 'Username is required' });
     }
 
+    // 消毒用户名
+    const sanitizedUsername = sanitizeUsername(username);
+
     const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    const user = users.find(u => u.username.toLowerCase() === sanitizedUsername.toLowerCase());
 
     if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -132,6 +168,18 @@ app.post('/api/notes/send', (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // 消毒和验证内容
+    const sanitizedContent = sanitizeInput(content);
+    const sanitizedTitle = sanitizeInput(title || 'Untitled Note').substring(0, MAX_TITLE_LENGTH);
+    
+    if (sanitizedContent.length === 0) {
+        return res.status(400).json({ error: 'Message content cannot be empty' });
+    }
+    
+    if (sanitizedContent.length > MAX_MESSAGE_LENGTH) {
+        return res.status(400).json({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} characters)` });
+    }
+
     const users = readJSON(USERS_FILE);
     const fromUser = users.find(u => u.id === fromUserId);
     const toUser = users.find(u => u.id === toUserId);
@@ -148,8 +196,8 @@ app.post('/api/notes/send', (req, res) => {
         fromUsername: fromUser.username,
         toUserId,
         toUsername: toUser.username,
-        title: title || 'Untitled Note',
-        content,
+        title: sanitizedTitle,
+        content: sanitizedContent,
         createdAt: new Date().toISOString(),
         read: false
     };
